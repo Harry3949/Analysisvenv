@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="{{ t.lang_code }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t.community_nav }} - Audio Analysis Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="/static/img/logo.png">
+</head>
+
+<body data-lang="{{ t.lang_code }}" 
+      data-username="{{ user.username if user else 'Guest' }}"
+      data-user-icon="{{ user.icon_url if user else '/static/img/logo.png' }}">
+
+    <!-- 🌐 ナビゲーションバー -->
+    <nav class="top-nav">
+        <div class="nav-logo">
+            <a href="/" style="text-decoration: none; color: inherit;">
+                <span>Audio Analysis Lab</span>
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="/diagnosis" class="nav-link active">{{ t.community_nav }}</a>
+            {% if user %}
+            <a href="/mypage" class="nav-link">{{ t.mypage_nav }}</a>
+            {% endif %}
+            <div class="lang-switcher">
+                <a href="/set_lang/ja" class="{% if t.lang_code == 'ja' %}active{% endif %}">JP</a>
+                <span>|</span>
+                <a href="/set_lang/en" class="{% if t.lang_code == 'en' %}active{% endif %}">EN</a>
+            </div>
+            <div class="nav-user">
+                {% if user %}
+                <div class="user-info">
+                    <img src="{{ user.icon_url }}" class="user-icon">
+                    <span>{{ user.username }}</span>
+                    <a href="/logout" class="logout-link">{{ t.logout }}</a>
+                </div>
+                {% else %}
+                <button onclick="openAuth()" class="login-trigger">{{ t.login_btn }}</button>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="chat-container">
+        <div class="chat-window" id="chat-window">
+            <!-- メッセージがここに蓄積される -->
+        </div>
+
+        <div id="typing" class="typing-indicator" style="display: none;">Nova is typing...</div>
+
+        <div class="quiz-controls" id="quiz-controls">
+            <!-- 選択肢がここに表示される -->
+        </div>
+    </div>
+
+    <!-- 🎭 外部JSの読み込み -->
+    <script src="/static/js/diagnosis.js"></script>
+    <script src="/static/js/script.js"></script>
+</body>
+
+</html>

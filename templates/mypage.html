@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="{{ t.lang_code }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t.mypage_nav }} - Audio Analysis Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="/static/img/logo.png">
+</head>
+
+<body data-lang="{{ t.lang_code }}">
+
+    <!-- 🌐 ナビゲーションバー -->
+    <nav class="top-nav">
+        <div class="nav-logo">
+            <a href="/" style="text-decoration: none; color: inherit;">
+                <span>Audio Analysis Lab</span>
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="/diagnosis" class="nav-link {% if request.url.path == '/diagnosis' %}active{% endif %}">{{ t.community_nav }}</a>
+            {% if user %}
+            <a href="/mypage" class="nav-link {% if request.url.path == '/mypage' %}active{% endif %}">{{ t.mypage_nav }}</a>
+            {% endif %}
+            <div class="lang-switcher">
+                <a href="/set_lang/ja" class="{% if t.lang_code == 'ja' %}active{% endif %}">JP</a>
+                <span>|</span>
+                <a href="/set_lang/en" class="{% if t.lang_code == 'en' %}active{% endif %}">EN</a>
+            </div>
+            <div class="nav-user">
+                {% if user %}
+                <div class="user-info">
+                    <img src="{{ user.icon_url }}" class="user-icon">
+                    <span>{{ user.username }}</span>
+                    <a href="/logout" class="logout-link">{{ t.logout }}</a>
+                </div>
+                {% else %}
+                <button onclick="openAuth()" class="login-trigger">{{ t.login_btn }}</button>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container community-page">
+        <div class="glass-panel profile-card">
+            <img src="{{ user.icon_url }}" alt="Profile">
+            <h2 style="margin: 0;">{{ user.username }}</h2>
+            
+            <form action="/update_profile" method="post" enctype="multipart/form-data" class="icon-form">
+                <input type="file" name="icon_file" accept="image/*" required>
+                <button type="submit" class="secondary-btn" style="padding: 10px 20px;">{{ t.update_icon }}</button>
+            </form>
+        </div>
+
+        <h2 class="title" style="font-size: 1.5rem;">{{ t.my_history }}</h2>
+
+        <div class="history-list">
+            {% for item in history %}
+            <div class="history-item" id="analysis-{{ item.id }}">
+                <div class="item-info">
+                    <h3>{{ item.song_name }}</h3>
+                    <p>BPM: {{ item.bpm }} | Key: {{ item.key }} | Mood: {{ item.mood }}</p>
+                    <p style="opacity: 0.5;">{{ item.created_at.strftime("%Y-%m-%d %H:%M") }}</p>
+                </div>
+                <button class="delete-btn" onclick="deleteHistory({{ item.id }}, '{{ t.delete_confirm }}')">
+                    {{ t.delete_confirm.split('?')[0] }}
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="margin-top: 40px;">
+            <button class="secondary-btn" onclick="location.href='/'">{{ t.back }}</button>
+        </div>
+    </div>
+
+    <script src="/static/js/script.js"></script>
+</body>
+
+</html>

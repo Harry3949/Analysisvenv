@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Analysis Lab - Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="/static/img/logo.png">
+</head>
+
+<body data-lang="{{ t.lang_code }}">
+
+    <!-- 🔑 認証モーダル -->
+    <div id="auth-modal" class="hidden overlay">
+        <div class="glass-panel auth-panel">
+            <h2 id="auth-title">{{ t.auth_login }}</h2>
+            <div class="auth-inputs">
+                <input type="text" id="username" placeholder="Username">
+                <input type="password" id="password" placeholder="Password">
+            </div>
+            <div class="auth-buttons">
+                <button id="authActionBtn" onclick="handleAuth()">{{ t.auth_login }}</button>
+                <p onclick="toggleAuthMode()" id="auth-toggle" data-login="{{ t.auth_has_account }}"
+                    data-signup="{{ t.auth_no_account }}">
+                    {{ t.auth_no_account }}
+                </p>
+                <button class="close-btn" onclick="closeAuth()">{{ t.auth_cancel }}</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🌐 ナビゲーションバー -->
+    <nav class="top-nav">
+        <div class="nav-logo">
+            <a href="/" style="text-decoration: none; color: inherit;">
+                <span>Audio Analysis Lab</span>
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="/diagnosis" class="nav-link {% if request.url.path == '/diagnosis' %}active{% endif %}">{{ t.community_nav }}</a>
+            {% if user %}
+            <a href="/mypage" class="nav-link {% if request.url.path == '/mypage' %}active{% endif %}">{{ t.mypage_nav }}</a>
+            {% endif %}
+            <div class="lang-switcher">
+                <a href="/set_lang/ja" class="{% if t.lang_code == 'ja' %}active{% endif %}">JP</a>
+                <span>|</span>
+                <a href="/set_lang/en" class="{% if t.lang_code == 'en' %}active{% endif %}">EN</a>
+            </div>
+            <div class="nav-user">
+                {% if user %}
+                <div class="user-info">
+                    <img src="{{ user.icon_url }}" class="user-icon">
+                    <span>{{ user.username }}</span>
+                    <a href="/logout" class="logout-link">{{ t.logout }}</a>
+                </div>
+                {% else %}
+                <button onclick="openAuth()" class="login-trigger">{{ t.login_btn }}</button>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- ハイテク解析アニメーション (最前面) -->
+    <div id="loading-overlay" class="hidden">
+        <div class="scanner-container">
+            <div class="scan-ring"></div>
+            <div class="scan-ring outer"></div>
+            <div class="scan-core"></div>
+            <p class="scan-label">SYSTEM ANALYSING...</p>
+            <div class="scan-data-wrap">
+                <span id="scan-progress">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- セットアップ画面 -->
+        <div id="setup-screen" class="screen active">
+            <img src="/static/img/logo.png" alt="Main Logo" class="main-logo">
+            <h1 class="title">Audio Analysis Lab</h1>
+            <p class="subtitle">{{ t.subtitle }}</p>
+
+            <div class="control-group">
+                <div class="main-controls">
+                    <select id="songSelect"></select>
+                    <button id="analyzeBtn" onclick="analyze()">{{ t.btn_analyze }}</button>
+                </div>
+                {% if user %}
+                <div class="control-divider"></div>
+                <div class="upload-controls">
+                    <input type="file" id="songUpload" accept=".wav" style="display: none;" onchange="handleUpload(this)">
+                    <button class="secondary-btn upload-btn" onclick="document.getElementById('songUpload').click()">{{ t.btn_upload }}</button>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- 結果・再生画面 -->
+        <div id="result-screen" class="screen hidden">
+            <canvas id="visualizer" class="bg-visualizer"></canvas>
+
+            <div class="content-overlay">
+                <button id="backBtn" onclick="resetScreen()">{{ t.back }}</button>
+
+                <div class="center-area">
+                    <!-- 中央の再生ボタンと円形演出 -->
+                    <button id="playBtn" onclick="togglePlay()">
+                        <div class="play-icon">▶</div>
+                    </button>
+                </div>
+
+                <!-- 左右のデータパネル -->
+                <div id="panel-left" class="side-panel left glass-panel" data-track="{{ t.stat_track }}"
+                    data-bpm="{{ t.stat_bpm }}" data-key="{{ t.stat_key }}"></div>
+                <div id="panel-right" class="side-panel right glass-panel" data-mood="{{ t.stat_mood }}"
+                    data-freq="{{ t.stat_freq }}"></div>
+            </div>
+
+            <!-- 裏で音を鳴らす用の要素（非表示） -->
+            <audio id="player" crossorigin="anonymous"></audio>
+        </div>
+    </div>
+
+    <script src="/static/js/script.js"></script>
+</body>
+
+</html>
